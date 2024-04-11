@@ -5,7 +5,7 @@ import numpy as np
 from datetime import datetime
 
 class pydb():
-    def __init__(self,dbname,mod_path="",mode='r'):
+    def __init__(self,dbname,mod_path="",mode='r',live=False):
         self.mod_path = mod_path.replace('\\','/')
         if(self.mod_path and not self.mod_path.endswith('/')): self.mod_path += '/'
 
@@ -14,6 +14,7 @@ class pydb():
         self.c  = self.db.cursor()
 
         self.mode = mode
+        self.live = live
 
     def initdb(self):
         if(self.mode == 'r'):
@@ -39,7 +40,7 @@ class pydb():
             )
         ''')
 
-        self.db.commit()
+        if(self.live): self.db.commit()
 
         # Load in the registers from the csv
         df = pd.read_csv(self.mod_path + "P625-PLC-Modbus-Registers.csv", usecols=['register number', 'scaling factor', 'name', 'description'])
@@ -56,7 +57,7 @@ class pydb():
             VALUES (?, ?, ?, ?)
             ''', (row['register_number'], row['scaling_factor'], row['name'], row['description']))
 
-        self.db.commit()
+        if(self.live): self.db.commit()
 
     def getRegisters(self):
         registers = [register[0] for register in self.c.execute('SELECT register_number FROM registers')]
@@ -70,28 +71,6 @@ class pydb():
     def getDataLog(self):
         dataLog = [row for row in self.c.execute('SELECT * FROM data_log')]
         return dataLog
-
-    # def getData(self,registers,startTime,endTime,n=100):
-    #     # First, retrieve all data points for the specified register within the given time range.
-    #     query = f'''
-    #         SELECT timestamp, value FROM data_log
-    #         WHERE register_id IN ({','.join('?' * len(registers))})
-    #         AND timestamp BETWEEN ? AND ?
-    #         ORDER BY timestamp ASC
-    #     '''
-    #     self.c.execute(query, registers + [startTime, endTime])
-    #     all_results = self.c.fetchall()
-
-    #     register_results = {}
-    #     for r,register in enumerate(registers):
-    #         sampled_results = all_results[r::len(registers)]
-    #         if(len(sampled_results) > n):
-    #             step = len(sampled_results) // n
-    #             sampled_results = sampled_results[::step]
-
-    #         register_results[register] = sampled_results.copy()
-                
-    #     return register_results
 
     def getData(self, registers, startTime, endTime, n=100):
         # First, retrieve all data points for the specified registers within the given time range.
@@ -113,13 +92,12 @@ class pydb():
 
         # Now, sample the results if they exceed 'n' entries
         for register in registers:
-            register_results[register][1] = np.array(register_results[register][1])
+            register_results[register][1] = np.array(register_results[register][1], dtype=float)
             timestamps, values = register_results[register]
             if len(timestamps) > n:
                 step = len(timestamps) // n
-                # Ensure to include the last point by adjusting the step if necessary
-                sampled_timestamps = timestamps[::step] if timestamps[-1] in timestamps[::step] else timestamps[::step] + [timestamps[-1]]
-                sampled_values = values[::step] if values[-1] in values[::step] else values[::step] + [values[-1]]
+                sampled_timestamps = timestamps[::step]
+                sampled_values     = values[::step]
                 register_results[register] = [sampled_timestamps, sampled_values]
 
         return register_results
@@ -138,7 +116,7 @@ class pydb():
                 VALUES (?, ?, ?)
             ''', (register_number, entry[0], entry[1]))
             
-        self.db.commit()
+        if(self.live): self.db.commit()
 
     def closedb(self):
         self.db.close()
