@@ -1,0 +1,35 @@
+﻿register number,scaling factor,name,description
+1,,Helium Recovery_DB.State,Helium Recovery_DB.State
+2,,Purifier_DB.State,Purifier_DB.State
+3,,CH Liquefier A_DB.State,CH Liquefier A_DB.State
+4,,CH Liquefier B_DB.State,CH Liquefier B_DB.State
+5,,System Status.AlarmState,System Status.AlarmState
+6,,"BOOL_TO_INT(""PowerOutAutoRestart_DB"".UPS_Active);","BOOL_TO_INT(""PowerOutAutoRestart_DB"".UPS_Active);"
+7,,"BOOL_TO_INT(""UPS_LOBATT"");","BOOL_TO_INT(""UPS_LOBATT"");"
+11,,Helium Recovery_DB.Alarm,Helium Recovery_DB.Alarm
+12,,Helium Recovery_DB.TripHistory,Helium Recovery_DB.TripHistory
+13,,Purity Meter_DB.Alarm,Purity Meter_DB.Alarm
+14,,,
+15,,Purifier_DB.Alarm,Purifier_DB.Alarm
+16,,Purifier_DB.TripHistory,Purifier_DB.TripHistory
+17,,CH Liquefier A_DB.Alarm,CH Liquefier A_DB.Alarm
+18,,CH Liquefier A_DB.TripHistory,CH Liquefier A_DB.TripHistory
+19,,CH Liquefier B_DB.Alarm,CH Liquefier B_DB.Alarm
+20,,CH Liquefier B_DB.TripHistory,CH Liquefier B_DB.TripHistory
+31,10,LT524A.AI.Value,LT524A.AI.Value
+32,10,TE521A.AI.Value,TE521A.AI.Value
+33,10,TE522A.AI.Value,TE522A.AI.Value
+34,10,PT520A.AI.Value,PT520A.AI.Value
+35,10,LT524B.AI.Value,LT524B.AI.Value
+36,10,TE521B.AI.Value,TE521B.AI.Value
+37,10,TE522B.AI.Value,TE522B.AI.Value
+38,10,PT520B.AI.Value,PT520B.AI.Value
+39,10,TE411.AI.Value,TE411.AI.Value
+40,10,TE412.AI.Value,TE412.AI.Value
+41,10,DPT511.AI.Value,DPT511.AI.Value
+42,100,AT502.AI.Value,AT502.AI.Value
+43,10,PT503.AI.Value,PT503.AI.Value
+44,10,PT305.AI.Value,PT305.AI.Value
+45,10,PT306.AI.Value,PT306.AI.Value
+46,10,TT903.AI.Value,TT903.AI.Value
+47,10,WT900.AI.Value,WT900.AI.Value
