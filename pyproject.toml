@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "HeLog"
+version = "1.0.0"
+description = "Software to log data from the helium recovery plant in New Horizons"
+authors = ["Julian Ceddia <jdceddia@gmail.com>"]
+readme = "README.md"
+license = "MIT"
+keywords = ["helium", "recovery", "data", "log", "logging", "databse","time","series"]
+packages = [
+            {include = "HeLog"},
+            ]
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "*"
+bokeh = "*"
+pyModbusTCP = "*"
+APScheduler = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

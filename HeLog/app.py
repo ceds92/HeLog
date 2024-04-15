@@ -9,8 +9,8 @@ dbname  = "live.db"         # Filename where the database is stored. It's ok to 
 host    = '192.168.0.1'     # IP of the host
 port    = 503               # Listening port
 unit_id = 2                 # ID of the unit on the network
-live    = False              # Live = True means the database commits. Make this False to not commit any new data
-demo    = True             # demo = True means you want to test this code without connecting to the plant controller. Data will be generated randomly
+live    = True              # Live = True means the database commits. Make this False to not commit any new data
+demo    = False             # demo = True means you want to test this code without connecting to the plant controller. Data will be generated randomly
 
 # Establish a connection to the database and to the plant
 interface = Interface(dbname=dbname,host=host,port=port,unit_id=unit_id,interval=5,live=live,demo=demo)
