@@ -9,8 +9,8 @@ dbname  = "live.db"         # Filename where the database is stored. It's ok to 
 host    = '192.168.0.1'     # IP of the host
 port    = 503               # Listening port
 unit_id = 2                 # ID of the unit on the network
-live    = True              # Live = True means the database commits. Make this False to not commit any new data
-demo    = False             # demo = True means you want to test this code without connecting to the plant controller. Data will be generated randomly
+live    = False              # Live = True means the database commits. Make this False to not commit any new data
+demo    = True             # demo = True means you want to test this code without connecting to the plant controller. Data will be generated randomly
 
 # Establish a connection to the database and to the plant
 interface = Interface(dbname=dbname,host=host,port=port,unit_id=unit_id,interval=5,live=live,demo=demo)
@@ -34,6 +34,8 @@ registers = {                                                               # Pu
     "PT305"  : [43, "Buffer Tank PT305", 10],                      # Figure 2
 
     "PT306"  : [44, "Inlet Pressure PT306", 10],                   # Figure 1
+
+    "WT900"  : [46, "Dewar Weight WT900", 10],                      # Figure 4
 }
 
 registerList = [value[0] for value in registers.values()]                   # Get a list of all of the register IDs in the registers dictionary
@@ -78,6 +80,22 @@ scaleFactor    = registers["LI524A"][2]
 s3_2 = ColumnDataSource(data=dict(x=data[registerNumber][0], y=data[registerNumber][1]/scaleFactor))
 p3.line(x='x', y='y', source=s3_2, legend_label=registerDesc, line_width=2, line_color="red")
 
+# Transport Dewar 3
+p4 = figure(title="Transport Dewar", x_axis_type='datetime', x_axis_label='Time', y_axis_label='Value')
+registerNumber = registers["WT900"][0]
+registerDesc   = registers["WT900"][1]
+scaleFactor    = registers["WT900"][2]
+
+dewarWeight    = data[registerNumber][1]/scaleFactor
+offsetWeight   = -1.3                   # This is the offset between the HMI reading and what the scale actually says
+tareWeight     = 95.87                  # This is how much an empty dewar weighs with everything connected
+LperKg         = 8                      # There are 8 L of liquid per kg
+
+heLevel = LperKg * (dewarWeight - tareWeight + offsetWeight)
+
+s4_1 = ColumnDataSource(data=dict(x=data[registerNumber][0], y=heLevel))
+p4.line(x='x', y='y', source=s4_1, legend_label="lHe amount (L)", line_width=2, line_color="blue")
+
 def update(registers):
     registerList = [value[0] for value in registers.values()]
 
@@ -99,6 +117,10 @@ def update(registers):
     x3_2  = data[registers["LI524A"][0]][0]
     y3_2  = data[registers["LI524A"][0]][1]
     sf3_2 = registers["LI524A"][2]
+    
+    x4_1  = data[registers["WT900"][0]][0]
+    sf4_1 = registers["WT900"][2]
+    y4_1  = LperKg * (data[registers["WT900"][0]][1]/sf4_1 - tareWeight + offsetWeight)
 
     new_s1_1 = dict(
         x=[x1_1],
@@ -122,7 +144,12 @@ def update(registers):
         x=[x3_2],
         y=[y3_2/sf3_2]
     )
-
+    
+    new_s4_1 = dict(
+        x=[x4_1],
+        y=[y4_1/sf4_1]
+    )
+    
     rollover = 10000
     s1_1.stream(new_s1_1, rollover=rollover)
     
@@ -131,9 +158,13 @@ def update(registers):
     
     s3_1.stream(new_s3_1, rollover=rollover)
     s3_2.stream(new_s3_2, rollover=rollover)
+    
+    s4_1.stream(new_s4_1, rollover=rollover)
 
 # Add periodic callback to update data every 2000 milliseconds (2 seconds)
 curdoc().add_periodic_callback(lambda: update(registers), 2000)
 
-layout = row(p1, p2, p3)
+row1 = row(p1, p2, p3)
+row2 = row(p4)
+layout = column(row1,row2)
 curdoc().add_root(layout)
